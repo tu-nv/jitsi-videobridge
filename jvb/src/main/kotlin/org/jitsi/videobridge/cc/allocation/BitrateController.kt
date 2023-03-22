@@ -87,7 +87,7 @@ class BitrateController<T : MediaSourceContainer> @JvmOverloads constructor(
 
     private val packetHandler: BitrateControllerPacketHandler =
         BitrateControllerPacketHandler(clock, parentLogger, diagnosticContext, eventEmitter)
-    private val bandwidthAllocator: BandwidthAllocator<T> =
+    val bandwidthAllocator: BandwidthAllocator<T> =
         BandwidthAllocator(
             bitrateAllocatorEventHandler,
             endpointsSupplier,

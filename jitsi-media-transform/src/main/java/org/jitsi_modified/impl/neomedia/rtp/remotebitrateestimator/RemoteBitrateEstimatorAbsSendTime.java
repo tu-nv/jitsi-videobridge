@@ -138,7 +138,7 @@ public class RemoteBitrateEstimatorAbsSendTime
     /**
      * Keeps track of how much data we're receiving.
      */
-    private BitrateTracker incomingBitrate;
+    public BitrateTracker incomingBitrate;
 
     /**
      * Determines whether or not the incoming bitrate is initialized or not.
@@ -387,6 +387,22 @@ public class RemoteBitrateEstimatorAbsSendTime
         // Called from both the configuration thread and the network thread.
         // Shouldn't be called from the network thread in the future.
         remoteRate.setMinBitrate(minBitrateBps);
+    }
+
+    public synchronized double getNoiseVar() {
+        return detector.estimator.getVarNoise();
+    }
+
+    public synchronized int getBwState() {
+        return detector.detector.getState().getValue();
+    }
+
+    public double getDelayGradient() {
+        return detector.estimator.getSlope();
+    }
+
+    public double getBwUsage() {
+        return detector.detector.getBwUsage();
     }
 
     /**

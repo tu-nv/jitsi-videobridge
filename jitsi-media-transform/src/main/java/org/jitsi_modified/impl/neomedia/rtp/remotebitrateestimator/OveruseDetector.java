@@ -53,6 +53,8 @@ class OveruseDetector
 
     private double threshold;
 
+    private double bwUsage;
+
     private double timeOverUsing = -1D;
 
     private final DiagnosticContext diagnosticContext;
@@ -64,6 +66,7 @@ class OveruseDetector
         Objects.requireNonNull(options, "options");
 
         threshold = options.initialThreshold;
+        bwUsage = 0.5;
         timeSeriesLogger = TimeSeriesLogger.getTimeSeriesLogger(getClass());
 
         this.diagnosticContext = diagnosticContext;
@@ -141,6 +144,9 @@ class OveruseDetector
             newHypothesis = true;
         }
 
+        double iBwUsage = Math.max(-5, Math.min(5, T / threshold));
+        bwUsage = 0.5 * bwUsage + 0.5 * iBwUsage;
+
         if (newHypothesis && timeSeriesLogger.isTraceEnabled())
         {
             timeSeriesLogger.trace(diagnosticContext
@@ -166,6 +172,10 @@ class OveruseDetector
     public BandwidthUsage getState()
     {
         return hypothesis;
+    }
+
+    public double getBwUsage() {
+        return bwUsage;
     }
 
     private void updateThreshold(double modifiedOffset, long nowMs)

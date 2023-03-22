@@ -586,7 +586,7 @@ public class SendSideBandwidthEstimation
      * Returns the last calculated RTT to the endpoint in milliseconds.
      * @return the last calculated RTT to the endpoint in milliseconds.
      */
-    private synchronized long getRttMs()
+    public synchronized long getRttMs()
     {
         if (rttMs < 0)
         {

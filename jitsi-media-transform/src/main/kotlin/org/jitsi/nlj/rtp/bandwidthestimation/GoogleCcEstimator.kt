@@ -27,11 +27,20 @@ import org.jitsi_modified.impl.neomedia.rtp.sendsidebandwidthestimation.SendSide
 import java.time.Duration
 import java.time.Instant
 import kotlin.properties.Delegates
+import khttp.post
+import kotlin.math.sqrt
 
-private val defaultInitBw: Bandwidth = 2.5.mbps
-
-class GoogleCcEstimator(diagnosticContext: DiagnosticContext, parentLogger: Logger) :
+open class GoogleCcEstimator(diagnosticContext: DiagnosticContext, parentLogger: Logger) :
     BandwidthEstimator(diagnosticContext) {
+    private val defaultInitBw: Bandwidth = 2.5.mbps
+    var rttCnt = 0
+    var pktRecvCnt = 0
+    var pktLossCnt = 0
+
+    var lastUpdateBwe = Instant.now()
+    val updateBwePeriodMs = 200
+    var latestBwe = Bandwidth(2500000.0)
+
     override val algorithmName = "Google CC"
 
     /* TODO: Use configuration service to set this default value. */
@@ -54,14 +63,14 @@ class GoogleCcEstimator(diagnosticContext: DiagnosticContext, parentLogger: Logg
     /**
      * Implements the delay-based part of Google CC.
      */
-    private val bitrateEstimatorAbsSendTime = RemoteBitrateEstimatorAbsSendTime(diagnosticContext, logger).also {
+    val bitrateEstimatorAbsSendTime = RemoteBitrateEstimatorAbsSendTime(diagnosticContext, logger).also {
         it.setMinBitrate(minBw.bps.toInt())
     }
 
     /**
      * Implements the loss-based part of Google CC.
      */
-    private val sendSideBandwidthEstimation =
+    val sendSideBandwidthEstimation =
         SendSideBandwidthEstimation(diagnosticContext, initBw.bps.toLong(), logger).also {
             it.setMinMaxBitrate(minBw.bps.toInt(), maxBw.bps.toInt())
         }
@@ -83,16 +92,33 @@ class GoogleCcEstimator(diagnosticContext: DiagnosticContext, parentLogger: Logg
         }
         sendSideBandwidthEstimation.updateReceiverEstimate(bitrateEstimatorAbsSendTime.latestEstimate)
         sendSideBandwidthEstimation.reportPacketArrived(now.toEpochMilli(), previouslyReportedLost)
+        pktRecvCnt++
     }
 
     override fun doProcessPacketLoss(now: Instant, sendTime: Instant?, seq: Int) {
         sendSideBandwidthEstimation.reportPacketLost(now.toEpochMilli())
+        pktLossCnt++
     }
 
+    fun clear_stats() {
+        rttCnt = 0
+        pktRecvCnt = 0
+        pktLossCnt = 0
+    }
     override fun doFeedbackComplete(now: Instant) {
-        /* TODO: rate-limit how often we call updateEstimate? */
-        sendSideBandwidthEstimation.updateEstimate(now.toEpochMilli())
-        reportBandwidthEstimate(now, sendSideBandwidthEstimation.latestEstimate.bps)
+        if(Instant.now().toEpochMilli() - lastUpdateBwe.toEpochMilli() > updateBwePeriodMs) {
+            sendSideBandwidthEstimation.updateEstimate(now.toEpochMilli())
+            val epID = diagnosticContext["endpoint_id"]
+            // prevent divide by 0
+            val json = arrayOf(epID, Instant.now().toEpochMilli(), bitrateEstimatorAbsSendTime.incomingBitrate.getRateBps(), pktLossCnt/(pktLossCnt + pktRecvCnt + 0.001), sendSideBandwidthEstimation.rttMs, sqrt(bitrateEstimatorAbsSendTime.noiseVar))
+            post(url = "http://141.223.181.174:9005/collect", json = json)
+
+            latestBwe = sendSideBandwidthEstimation.latestEstimate.bps
+            reportBandwidthEstimate(now, latestBwe)
+            lastUpdateBwe = Instant.now()
+
+            clear_stats()
+        }
     }
 
     override fun doRttUpdate(now: Instant, newRtt: Duration) {
@@ -101,7 +127,7 @@ class GoogleCcEstimator(diagnosticContext: DiagnosticContext, parentLogger: Logg
     }
 
     override fun getCurrentBw(now: Instant): Bandwidth {
-        return sendSideBandwidthEstimation.latestEstimate.bps
+        return latestBwe
     }
 
     override fun getStats(now: Instant): StatisticsSnapshot = StatisticsSnapshot(

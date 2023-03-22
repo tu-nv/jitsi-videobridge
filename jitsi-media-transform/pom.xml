@@ -127,6 +127,11 @@
             <version>2.3.1</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>khttp</groupId>
+            <artifactId>khttp</artifactId>
+            <version>0.1.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -300,6 +305,10 @@
     </build>
 
     <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://jcenter.bintray.com</url>
+        </repository>
         <repository>
             <id>jitsi-maven-repository-releases</id>
             <layout>default</layout>

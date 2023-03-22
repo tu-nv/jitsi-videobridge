@@ -162,6 +162,8 @@ class OveruseEstimator
         return offset;
     }
 
+    public double getSlope(){ return slope; }
+
     /**
      * Returns the estimated noise/jitter variance in ms^2.
      *
