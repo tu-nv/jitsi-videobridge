@@ -401,7 +401,7 @@ public class RemoteBitrateEstimatorAbsSendTime
         return detector.estimator.getSlope();
     }
 
-    public double getBwUsage() {
+    public double getDelayGrad() {
         return detector.detector.getBwUsage();
     }
 

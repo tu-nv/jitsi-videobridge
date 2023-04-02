@@ -50,6 +50,10 @@ import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 import org.jitsi.videobridge.websocket.singleton as webSocketServiceSingleton
 
+import io.grpc.ManagedChannel
+import io.grpc.ManagedChannelBuilder
+import org.jitsi.nlj.rtp.bandwidthestimation.MunoClientService
+
 fun main(args: Array<String>) {
     val logger = LoggerImpl("org.jitsi.videobridge.Main")
 
@@ -164,6 +168,11 @@ fun main(args: Array<String>) {
         logger.info("Not starting private http server")
         null
     }
+
+    // init muno grpc
+    val munoGrpcEp = System.getenv("MUNO_GRPC_EP") ?: throw NullPointerException("MUNO_GRPC_EP env not set!")
+    val munoChannel = ManagedChannelBuilder.forTarget(munoGrpcEp).usePlaintext().build()
+    MunoClientService.init(munoChannel)
 
     // Block here until the bridge shuts down
     shutdownService.waitForShutdown()

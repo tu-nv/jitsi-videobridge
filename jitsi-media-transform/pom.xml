@@ -132,9 +132,52 @@
             <artifactId>khttp</artifactId>
             <version>0.1.0</version>
         </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-kotlin-stub</artifactId>
+            <version>${grpc.kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-stub</artifactId>
+            <version>${grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-protobuf</artifactId>
+            <version>${grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${protobuf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-kotlin</artifactId>
+            <version>${protobuf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-netty-shaded</artifactId>
+            <version>${grpc.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-core</artifactId>
+            <version>1.6.2</version>
+        </dependency>
     </dependencies>
 
     <build>
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.7.0</version>
+            </extension>
+        </extensions>
         <!--<sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>-->
         <plugins>
             <plugin>
@@ -144,27 +187,34 @@
                 <executions>
                     <execution>
                         <id>compile</id>
-                        <goals> <goal>compile</goal> </goals>
+                        <goals> <goal>compile</goal>
+                        </goals>
                         <configuration>
                             <sourceDirs>
-                                <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
-                                <sourceDir>${project.basedir}/src/main/java</sourceDir>
+                                <sourceDir>
+                                    ${project.basedir}/src/main/kotlin</sourceDir>
+                                <sourceDir>
+                                    ${project.basedir}/src/main/java</sourceDir>
                             </sourceDirs>
                         </configuration>
                     </execution>
                     <execution>
                         <id>test-compile</id>
-                        <goals> <goal>test-compile</goal> </goals>
+                        <goals> <goal>test-compile</goal>
+                        </goals>
                         <configuration>
                             <sourceDirs>
-                                <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
-                                <sourceDir>${project.basedir}/src/test/java</sourceDir>
+                                <sourceDir>
+                                    ${project.basedir}/src/test/kotlin</sourceDir>
+                                <sourceDir>
+                                    ${project.basedir}/src/test/java</sourceDir>
                             </sourceDirs>
                         </configuration>
                     </execution>
                 </executions>
                 <configuration>
-                    <jvmTarget>11</jvmTarget>
+                    <jvmTarget>
+                        11</jvmTarget>
                 </configuration>
             </plugin>
             <plugin>
@@ -180,8 +230,10 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>${project.basedir}/src/main/kotlin</source>
-                                <source>${project.basedir}/src/main/java</source>
+                                <source>
+                                    ${project.basedir}/src/main/kotlin</source>
+                                <source>
+                                    ${project.basedir}/src/main/java</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -220,16 +272,19 @@
                     <execution>
                         <id>java-compile</id>
                         <phase>compile</phase>
-                        <goals> <goal>compile</goal> </goals>
+                        <goals> <goal>compile</goal>
+                        </goals>
                     </execution>
                     <execution>
                         <id>java-test-compile</id>
                         <phase>test-compile</phase>
-                        <goals> <goal>testCompile</goal> </goals>
+                        <goals> <goal>testCompile</goal>
+                        </goals>
                     </execution>
                 </executions>
                 <configuration>
-                    <source>11</source>
+                    <source>
+                        11</source>
                     <target>11</target>
                 </configuration>
             </plugin>
@@ -239,7 +294,8 @@
                 <configuration>
                     <excludes>
                         <!-- init() currently throws an exception -->
-                        <exclude>DtlsStackTest.*</exclude>
+                        <exclude>
+                            DtlsStackTest.*</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -249,10 +305,12 @@
                 <version>1.13.1</version>
                 <configuration>
                     <sourceRoots>
-                       <sourceRoot>${project.basedir}/src/main/kotlin</sourceRoot>
+                       <sourceRoot>
+                            ${project.basedir}/src/main/kotlin</sourceRoot>
                     </sourceRoots>
                     <testSourceRoots>
-                        <testSourceRoot>${project.basedir}/src/test/kotlin</testSourceRoot>
+                        <testSourceRoot>
+                            ${project.basedir}/src/test/kotlin</testSourceRoot>
                     </testSourceRoots>
                 </configuration>
                 <executions>
@@ -260,7 +318,7 @@
                       <id>check</id>
                       <goals>
                           <goal>check</goal>
-                      </goals>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -269,38 +327,85 @@
               <artifactId>maven-checkstyle-plugin</artifactId>
               <version>3.1.1</version>
               <configuration>
-                  <configLocation>checkstyle.xml</configLocation>
-              </configuration>
+                  <configLocation>
+                        checkstyle.xml</configLocation>
+                </configuration>
               <executions>
                   <execution>
                       <goals>
                           <goal>check</goal>
-                      </goals>
-                  </execution>
-              </executions>
-          </plugin>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
           <plugin>
               <groupId>com.github.spotbugs</groupId>
               <artifactId>spotbugs-maven-plugin</artifactId>
               <version>4.7.0.0</version>
               <configuration>
-                  <excludeFilterFile>${project.basedir}/spotbugs-exclude.xml</excludeFilterFile>
+                  <excludeFilterFile>
+                        ${project.basedir}/spotbugs-exclude.xml</excludeFilterFile>
                   <includeTests>true</includeTests>
-              </configuration>
+                </configuration>
               <executions>
                   <execution>
                       <phase>verify</phase>
-                      <goals><goal>check</goal></goals>
-                  </execution>
-              </executions>
+                      <goals><goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
               <dependencies>
                   <dependency>
                       <groupId>com.github.spotbugs</groupId>
                       <artifactId>spotbugs</artifactId>
                       <version>${spotbugs.version}</version>
-                  </dependency>
-              </dependencies>
-          </plugin>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.xolstice.maven.plugins</groupId>
+                <artifactId>protobuf-maven-plugin</artifactId>
+                <version>0.6.1</version>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>compile-custom</goal>
+                        </goals>
+                        <configuration>
+                            <protocArtifact>
+                                com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
+                            <pluginId>grpc-java</pluginId>
+                            <pluginArtifact>
+                                io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
+                            <protocPlugins>
+                                <protocPlugin>
+                                    <id>grpc-kotlin</id>
+                                    <groupId>io.grpc</groupId>
+                                    <artifactId>protoc-gen-grpc-kotlin</artifactId>
+                                    <version>${grpc.kotlin.version}</version>
+                                    <classifier>jdk8</classifier>
+                                    <mainClass>io.grpc.kotlin.generator.GeneratorRunner</mainClass>
+                                </protocPlugin>
+                            </protocPlugins>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>compile-kt</id>
+                        <goals>
+                            <goal>compile-custom</goal>
+                        </goals>
+                        <configuration>
+                            <protocArtifact>
+                                com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
+                            <outputDirectory>
+                                ${project.build.directory}/generated-sources/protobuf/kotlin</outputDirectory>
+                            <pluginId>kotlin</pluginId>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -343,7 +448,8 @@
         <profile>
             <id>coverage</id>
             <properties>
-                <jacoco.version>0.8.8</jacoco.version>
+                <jacoco.version>
+                    0.8.8</jacoco.version>
             </properties>
             <build>
                 <plugins>

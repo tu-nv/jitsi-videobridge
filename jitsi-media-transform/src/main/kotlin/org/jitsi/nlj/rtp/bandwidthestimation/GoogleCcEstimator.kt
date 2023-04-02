@@ -40,6 +40,7 @@ open class GoogleCcEstimator(diagnosticContext: DiagnosticContext, parentLogger:
     var lastUpdateBwe = Instant.now()
     val updateBwePeriodMs = 200
     var latestBwe = Bandwidth(2500000.0)
+    val munoStatsRestEp = System.getenv("MUNO_STATS_REST_EP") ?: throw NullPointerException("MUNO_STATS_REST_EP env not set!")
 
     override val algorithmName = "Google CC"
 
@@ -111,7 +112,7 @@ open class GoogleCcEstimator(diagnosticContext: DiagnosticContext, parentLogger:
             val epID = diagnosticContext["endpoint_id"]
             // prevent divide by 0
             val json = arrayOf(epID, Instant.now().toEpochMilli(), bitrateEstimatorAbsSendTime.incomingBitrate.getRateBps(), pktLossCnt/(pktLossCnt + pktRecvCnt + 0.001), sendSideBandwidthEstimation.rttMs, sqrt(bitrateEstimatorAbsSendTime.noiseVar))
-            post(url = "http://141.223.181.174:9005/collect", json = json)
+            post(url = munoStatsRestEp, json = json)
 
             latestBwe = sendSideBandwidthEstimation.latestEstimate.bps
             reportBandwidthEstimate(now, latestBwe)

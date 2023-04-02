@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package org.jitsi.muno;
+option java_multiple_files = true;
+
+service Muno {
+  rpc SendStats(MunoStats) returns (MunoBwe) {}
+}
+
+message MunoStats {
+  string epID = 1;
+  float gccBwe = 2;
+  float lossRate = 3;
+  float delayGrad = 4;
+}
+
+message MunoBwe {
+  float bwe = 1;
+}
