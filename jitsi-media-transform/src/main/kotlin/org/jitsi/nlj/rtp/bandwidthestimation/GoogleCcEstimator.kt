@@ -40,6 +40,7 @@ open class GoogleCcEstimator(diagnosticContext: DiagnosticContext, parentLogger:
     var lastUpdateBwe = Instant.now()
     val updateBwePeriodMs = 200
     var latestBwe = Bandwidth(2500000.0)
+    val munoCollectGccStats = System.getenv("MUNO_COLLECT_GCC_STATS")?.toBoolean() ?: throw NullPointerException("MUNO_COLLECT_GCC_STATS env not set (set it to true or false)!")
     val munoStatsRestEp = System.getenv("MUNO_STATS_REST_EP") ?: throw NullPointerException("MUNO_STATS_REST_EP env not set!")
 
     override val algorithmName = "Google CC"
@@ -109,10 +110,12 @@ open class GoogleCcEstimator(diagnosticContext: DiagnosticContext, parentLogger:
     override fun doFeedbackComplete(now: Instant) {
         if(Instant.now().toEpochMilli() - lastUpdateBwe.toEpochMilli() > updateBwePeriodMs) {
             sendSideBandwidthEstimation.updateEstimate(now.toEpochMilli())
-            val epID = diagnosticContext["endpoint_id"]
-            // prevent divide by 0
-            val json = arrayOf(epID, Instant.now().toEpochMilli(), bitrateEstimatorAbsSendTime.incomingBitrate.getRateBps(), pktLossCnt/(pktLossCnt + pktRecvCnt + 0.001), sendSideBandwidthEstimation.rttMs, sqrt(bitrateEstimatorAbsSendTime.noiseVar))
-            post(url = munoStatsRestEp, json = json)
+            if(munoCollectGccStats) {
+                val epID = diagnosticContext["endpoint_id"]
+                // prevent divide by 0
+                val json = arrayOf(epID, Instant.now().toEpochMilli(), bitrateEstimatorAbsSendTime.incomingBitrate.getRateBps(), pktLossCnt/(pktLossCnt + pktRecvCnt + 0.001), sendSideBandwidthEstimation.rttMs, sqrt(bitrateEstimatorAbsSendTime.noiseVar))
+                post(url = munoStatsRestEp, json = json)
+            }
 
             latestBwe = sendSideBandwidthEstimation.latestEstimate.bps
             reportBandwidthEstimate(now, latestBwe)
