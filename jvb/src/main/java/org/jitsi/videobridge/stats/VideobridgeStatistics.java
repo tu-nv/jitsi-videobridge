@@ -273,6 +273,11 @@ public class VideobridgeStatistics
         int numLocalActiveEndpoints = 0;
         int endpointsWithSuspendedSources = 0;
 
+        com.sun.management.OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(
+                com.sun.management.OperatingSystemMXBean.class);
+        double cpuLoad = osBean.getSystemCpuLoad();
+        double memoryLoad = 1 - (double)osBean.getFreePhysicalMemorySize()/osBean.getTotalPhysicalMemorySize();
+
         for (Conference conference : videobridge.getConferences())
         {
             if (conference.isP2p())
@@ -457,6 +462,8 @@ public class VideobridgeStatistics
                     / (incomingPacketsReceived + incomingPacketsLost + outgoingPacketsReceived + outgoingPacketsLost);
         }
 
+
+
         // Now that (the new values of) the statistics have been calculated and
         // the risks of the current thread hanging have been reduced as much as
         // possible, commit (the new values of) the statistics.
@@ -465,6 +472,9 @@ public class VideobridgeStatistics
         lock.lock();
         try
         {
+            unlockedSetStat("cpu_load", cpuLoad);
+            unlockedSetStat("memory_load", memoryLoad);
+
             unlockedSetStat(INCOMING_LOSS, incomingLoss);
             unlockedSetStat(OUTGOING_LOSS, outgoingLoss);
 
